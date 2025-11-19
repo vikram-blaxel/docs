@@ -30,6 +30,7 @@ jobs:
           git config --local user.name "github-actions[bot]"
       - name: Update CLI docs from upstream remote
         run: |
+          git remote add upstream-toolkit https://.:${GITHUB_TOKEN}@github.com/blaxel-ai/toolkit.git
           git checkout main
           tmpdir="$(mktemp -d)"
           git archive upstream-toolkit/main docs | tar -x -C "$tmpdir"
