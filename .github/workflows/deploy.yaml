@@ -1,0 +1,33 @@
+name: Deploy documentation
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  deploy-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Deploying documentation..."
+
+  sync-subtrees:
+    needs: deploy-docs
+    uses: ./.github/workflows/sync-subtrees.yaml
+    secrets:
+      GH_PAT: ${{ secrets.GH_PAT }}
+
+  export-to-notion:
+    needs: [deploy-docs, sync-subtrees]
+    uses: ./.github/workflows/export-to-notion.yaml
+    secrets:
+      NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+    with:
+      NOTION_ROOT_PAGE: ${{ vars.NOTION_ROOT_PAGE }}
+
+
+  refresh-context7:
+    needs: [deploy-docs, sync-subtrees]
+    uses: ./.github/workflows/refresh-context7.yaml
