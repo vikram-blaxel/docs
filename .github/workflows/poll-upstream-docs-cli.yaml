@@ -43,7 +43,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: auto-update-docs-cli
           base: main
-          commit-message: "chore: [auto] update cli docs from upstream"
-          title: "chore: [auto] update cli docs from upstream"
+          commit-message: "chore: auto-update cli docs from upstream"
+          title: "chore: auto-update cli docs from upstream"
           body: "Automated update of CLI docs"
           delete-branch: false
