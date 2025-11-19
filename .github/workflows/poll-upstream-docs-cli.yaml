@@ -1,4 +1,4 @@
-name: Poll upstream (cli)
+name: Poll upstream docs (CLI)
 
 on:
   workflow_dispatch: {}
@@ -30,19 +30,25 @@ jobs:
           git config --local user.name "github-actions[bot]"
       - name: Add upstream remote for CLI docs and open PR
         run: |
-          git remote add upstream-toolkit https://.:${{ secrets.GITHUB_TOKEN }}@github.com/blaxel-ai/toolkit.git
-          git fetch upstream-toolkit main
-          git checkout -B auto-update-docs-cli origin/main
-          git rm -r cli-reference/commands generated 2>/dev/null || true
-          git read-tree --prefix=cli-reference/commands/ -u upstream-toolkit/main:docs
-          git add cli-reference/commands
+          git checkout main
+          tmpdir="$(mktemp -d)"
+          git archive upstream-toolkit/main docs | tar -x -C "$tmpdir"
+          rm -rf cli-reference/commands
+          mkdir -p cli-reference/commands
+          cp -R "$tmpdir/docs/." cli-reference/commands/
           python scripts/generate-submenu-cli/main.py cli-reference/commands ./docs.json
           git status --short
-          if ! git diff --cached --quiet; then
-            git commit -am "chore: [auto] update cli docs from upstream"
-            git push origin auto-update-docs-cli
-            gh pr create --title "chore: [auto] update cli docs from upstream" --body "Automated update of CLI docs from upstream." --base main --head auto-update-docs-cli ||
-            gh pr edit auto-update-docs-cli --title "chore: [auto] update cli docs from upstream" --body "Automated update of CLI docs from upstream."
-          else
-            echo "No changes in upstream CLI docs."
-          fi
+      - name: Create pull request for CLI docs update
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: auto-update-docs-cli
+          base: main
+          commit-message: chore: [auto] update cli docs from upstream
+          title: chore: [auto] update cli docs from upstream
+          body: |
+            Automated update of CLI docs
+          labels: |
+            chore
+            automated
+          delete-branch: false
