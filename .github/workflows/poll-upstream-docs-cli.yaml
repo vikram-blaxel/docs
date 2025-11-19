@@ -30,13 +30,10 @@ jobs:
           git config --local user.name "github-actions[bot]"
       - name: Update CLI docs from upstream remote
         run: |
-          git remote add upstream-toolkit https://.:${GITHUB_TOKEN}@github.com/blaxel-ai/toolkit.git
-          git checkout main
-          tmpdir="$(mktemp -d)"
-          git archive upstream-toolkit/main docs | tar -x -C "$tmpdir"
+          git clone https://.:${GITHUB_TOKEN}@github.com/blaxel-ai/toolkit.git
           rm -rf cli-reference/commands
-          mkdir -p cli-reference/commands
-          cp -R "$tmpdir/docs/." cli-reference/commands/
+          cp -R toolkit/docs/* ./cli-reference/commands/
+          rm -rf toolkit
           python scripts/generate-submenu-cli/main.py cli-reference/commands ./docs.json
           git status --short
       - name: Create pull request for CLI docs update
