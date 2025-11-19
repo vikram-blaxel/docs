@@ -1,4 +1,4 @@
-name: On Update documentation
+name: Refresh Context7
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 0 */10 * *'
+    - cron: '0 0 */10 * *' # run every 10 days
 
 jobs:
   refresh-context7:
